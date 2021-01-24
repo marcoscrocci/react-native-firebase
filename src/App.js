@@ -22,13 +22,14 @@ import firebase from 'firebase'
 const App = () => {
 
     const [Pontuacao, setPontuacao] = useState(0);
+    const [UsuarioAutenticado, setUsuarioAutenticado] = useState(null);
 
     const salvarDados = () => {
         // Exemplo 1
         //var database = firebase.database();
         //database.ref("pontuacao").set("200"); // Incluir ou Atualizar
         //database.ref("pontuacao").remove(); // Remover
-        
+
         // Exemplo 2
         var funcionarios = firebase.database().ref("funcionarios");
         //funcionarios.child("002").child("nome").set("Jamilton") 
@@ -58,23 +59,71 @@ const App = () => {
 
         const usuario = firebase.auth();
         usuario.createUserWithEmailAndPassword(email, senha)
-        .catch((erro) => {
-            //erro.code
-            var mensagemError = "Falha ao criar o usuário!"
-            switch (erro.code) {
-                case "auth/weak-password":
-                    mensagemError = "A senha precisa ter no mínimo 6 caracteres!";
-                    break;
-                case "auth/email-already-in-use":
-                    mensagemError = "Este endereço de e-mail já está em uso por outra conta!";
-                    break;
-            
-                default:
-                    mensagemError = erro.message
-                    break;
+            .catch((erro) => {
+                //erro.code
+                var mensagemError = "Falha ao criar o usuário!"
+                switch (erro.code) {
+                    case "auth/weak-password":
+                        mensagemError = "A senha precisa ter no mínimo 6 caracteres!";
+                        break;
+                    case "auth/email-already-in-use":
+                        mensagemError = "Este endereço de e-mail já está em uso por outra conta!";
+                        break;
+
+                    default:
+                        mensagemError = erro.message
+                        break;
+                }
+                alert(mensagemError)
+            });
+    }
+
+    const verificarUsuarioLogado = () => {
+        const usuario = firebase.auth();
+        const usuarioAtual = usuario.currentUser;
+        // if (usuarioAtual) {
+        //     alert("Usuário está logado")
+        // } else {
+        //     alert("Usuário não está logado")
+        // }
+
+        usuario.onAuthStateChanged((usuarioAtual) => {
+            if (usuarioAtual) {
+                setUsuarioAutenticado(usuarioAtual)
+                //alert(JSON.stringify(usuarioAtual))
+            } else {
+                setUsuarioAutenticado(null)
             }
-            alert(mensagemError)
         });
+    }
+
+    const sairUsuario = () => {
+        const usuario = firebase.auth();
+        usuario.signOut()
+    }
+
+    const autenticarUsuario = () => {
+        var email = "marcoscrocci@gmail.com";
+        var senha = "teste123";
+        const usuario = firebase.auth();
+        usuario.signInWithEmailAndPassword(email, senha)
+            .catch((erro) => {
+                //erro.code
+                var mensagemError = "Falha ao criar o usuário!"
+                switch (erro.code) {
+                    case "auth/wrong-password":
+                        mensagemError = "Usuário e/ou senha inválidos!";
+                        break;
+                    case "auth/user-not-found":
+                        mensagemError = "Usuário e/ou senha inválidos!";
+                        break;
+
+                    default:
+                        mensagemError = erro.code
+                        break;
+                }
+                alert(mensagemError)
+            });
     }
 
     return (
@@ -104,8 +153,27 @@ const App = () => {
                             color="#841584"
                             accessibilityLabel="Cadastrar usuário"
                         />
+                        <Button
+                            onPress={verificarUsuarioLogado}
+                            title="Verificar usuário autenticado"
+                            color="#841584"
+                            accessibilityLabel="Verificar usuário autenticado"
+                        />
+                        <Button
+                            onPress={sairUsuario}
+                            title="Sair"
+                            color="#841584"
+                            accessibilityLabel="Sair"
+                        />
+                        <Button
+                            onPress={autenticarUsuario}
+                            title="Autenticar"
+                            color="#841584"
+                            accessibilityLabel="Autenticar"
+                        />
                     </View>
                     <Text>Pontuação: {Pontuacao}</Text>
+                    <Text>Usuário Autenticado: {UsuarioAutenticado && UsuarioAutenticado.email}</Text>
                 </ScrollView>
             </SafeAreaView>
         </>
