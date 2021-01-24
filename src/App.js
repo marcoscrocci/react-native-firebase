@@ -52,6 +52,31 @@ const App = () => {
         })
     }
 
+    const cadastrarUsuario = () => {
+        var email = "marcoscrocci@gmail.com";
+        var senha = "teste123";
+
+        const usuario = firebase.auth();
+        usuario.createUserWithEmailAndPassword(email, senha)
+        .catch((erro) => {
+            //erro.code
+            var mensagemError = "Falha ao criar o usuário!"
+            switch (erro.code) {
+                case "auth/weak-password":
+                    mensagemError = "A senha precisa ter no mínimo 6 caracteres!";
+                    break;
+                case "auth/email-already-in-use":
+                    mensagemError = "Este endereço de e-mail já está em uso por outra conta!";
+                    break;
+            
+                default:
+                    mensagemError = erro.message
+                    break;
+            }
+            alert(mensagemError)
+        });
+    }
+
     return (
         <>
             <StatusBar barStyle="dark-content" />
@@ -72,6 +97,12 @@ const App = () => {
                             title="Listar dados"
                             color="#841584"
                             accessibilityLabel="Listar dados"
+                        />
+                        <Button
+                            onPress={cadastrarUsuario}
+                            title="Cadastrar usuário"
+                            color="#841584"
+                            accessibilityLabel="Cadastrar usuário"
                         />
                     </View>
                     <Text>Pontuação: {Pontuacao}</Text>
